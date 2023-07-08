@@ -8,3 +8,17 @@ datasource db {
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
+
+model AccessToken {
+  userId              String             @id
+  accessToken         String
+  expiresIn           Int?
+  obtainmentTimestamp BigInt
+  refreshToken        String?
+  scopes              AccessTokenScope[]
+}
+
+model AccessTokenScope {
+  name         String        @id
+  accessTokens AccessToken[]
+}

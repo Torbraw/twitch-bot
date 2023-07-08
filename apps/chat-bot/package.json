@@ -1,0 +1,16 @@
+{
+  "name": "chat-bot",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "tsx watch index.ts"
+  },
+  "dependencies": {
+    "@twurple/auth": "^6.2.1",
+    "@twurple/chat": "^6.2.1"
+  },
+  "devDependencies": {
+    "database": "*",
+    "tsconfig": "*"
+  }
+}

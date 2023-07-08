@@ -1,12 +1,10 @@
 {
-  "private": true,
   "prisma": {
     "schema": "packages/database/prisma/schema.prisma",
     "seed": "tsx packages/database/src/seed.ts"
   },
   "scripts": {
     "build": "dotenv -- turbo run build",
-    "build-prod": "dotenv -e env.prod turbo run build",
     "dev": "dotenv -- turbo run dev"
   },
   "devDependencies": {
@@ -19,14 +17,13 @@
     "eslint-config-turbo": "^1.10.7",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^3.0.0",
+    "prettier": "^2.8.8",
     "tsx": "^3.12.7",
     "turbo": "^1.10.7"
   },
   "packageManager": "npm@9.3.0",
   "workspaces": [
     "apps/*",
-    "apps/lambdas/*",
     "packages/*"
   ]
 }

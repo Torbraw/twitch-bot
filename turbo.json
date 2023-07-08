@@ -2,7 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [".env"],
   "globalEnv": [
-    "CLOUDFRONT_URL"
+    "CLOUDFRONT_URL",
+    "TWITCH_USER_ID",
+    "TWITCH_CLIENT_ID",
+    "TWITCH_CLIENT_SECRET",
+    "TWITCH_AUTHORIZATION_CODE"
   ],
   "pipeline": {
     "build": {
