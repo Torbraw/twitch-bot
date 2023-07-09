@@ -3,7 +3,7 @@ import { Bot } from './bot';
 import { BotCommandContextOptions } from '../types';
 
 export class BotCommandContext {
-  //#region Base Properties
+  //#region Base Properties & constructor
   private readonly _bot: Bot;
   private readonly _msg: PrivateMessage;
   private readonly _channel: string;
@@ -22,17 +22,12 @@ export class BotCommandContext {
     return this._user;
   }
 
-  public get args(): string[] {
-    return this._args;
-  }
-  //#endregion
-
   public get channel(): string {
     return this._channel;
   }
 
-  public get broadcasterId(): string {
-    return this.msg.channelId || '';
+  public get args(): string[] {
+    return this._args;
   }
 
   public constructor(options: BotCommandContextOptions) {
@@ -41,5 +36,10 @@ export class BotCommandContext {
     this._channel = options.channel;
     this._user = options.user;
     this._msg = options.msg;
+  }
+  //#endregion
+
+  public get broadcasterId(): string {
+    return this.msg.channelId || '';
   }
 }

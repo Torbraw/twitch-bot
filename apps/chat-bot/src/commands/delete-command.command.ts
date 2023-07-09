@@ -29,6 +29,7 @@ export class DeleteCommandCommand extends BotCommand {
         },
       });
 
+      context.bot.removeCustomCommand(context.broadcasterId, commandName);
       await context.bot.say(context.channel, `The command ${commandName} was deleted.`);
     } catch (e) {
       console.error(e);

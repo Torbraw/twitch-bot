@@ -1,6 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { Prisma, prisma } from 'database';
+import { createBotCommandFromCustomCommand } from '../utils';
 
 export class AddCommandCommand extends BotCommand {
   public constructor() {
@@ -20,7 +21,7 @@ export class AddCommandCommand extends BotCommand {
     }
 
     try {
-      await prisma.customCommand.create({
+      const newCommand = await prisma.customCommand.create({
         data: {
           channelId: context.broadcasterId,
           name: commandName,
@@ -28,6 +29,7 @@ export class AddCommandCommand extends BotCommand {
         },
       });
 
+      context.bot.addCustomCommand(context.broadcasterId, createBotCommandFromCustomCommand(newCommand));
       await context.bot.say(context.channel, `The command ${commandName} was added.`);
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {

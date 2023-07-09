@@ -10,6 +10,7 @@ import { BotCommandContext } from './bot-command-context';
 import { CommandMatch } from '../types';
 
 export class Bot {
+  //#region Base Properties & constructor
   private readonly _api: ApiClient;
   private readonly _chat: ChatClient;
   private readonly _authProvider: RefreshingAuthProvider;
@@ -43,7 +44,9 @@ export class Bot {
       console.log('Successfully to chat');
     });
   }
+  //#endregion
 
+  //#region Public Methods
   /**
    * Initialize the bot with values that need async calls
    */
@@ -72,6 +75,18 @@ export class Bot {
     await this._chat.connect();
   };
 
+  public addCustomCommand = (channelId: string, command: BotCommand) => {
+    const commands = this._customCommands.get(channelId) ?? [];
+    commands.push(command);
+    this._customCommands.set(channelId, commands);
+  };
+
+  public removeCustomCommand = (channelId: string, commandName: string) => {
+    const commands = this._customCommands.get(channelId) ?? [];
+    const newCommands = commands.filter((command) => command.name !== commandName);
+    this._customCommands.set(channelId, newCommands);
+  };
+
   public say = async (channel: string, message: string) => {
     await this._chat.say(channel, message);
   };
@@ -79,7 +94,9 @@ export class Bot {
   public reply = async (channel: string, text: string, replyMessage: PrivateMessage) => {
     await this._chat.say(channel, text, { replyTo: replyMessage });
   };
+  //#endregion
 
+  //#region Private Methods
   private handleOnMessage = async (channel: string, user: string, text: string, msg: PrivateMessage) => {
     const match = this.findMatch(text, msg.channelId || '');
     if (match) {
@@ -124,4 +141,5 @@ export class Bot {
 
     return null;
   }
+  //#endregion
 }
