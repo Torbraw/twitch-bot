@@ -13,9 +13,9 @@ export class AddCommandCommand extends BotCommand {
   }
 
   public async execute(context: BotCommandContext) {
-    const [commandName, response] = context.args;
+    const [commandName, ...args] = context.args;
 
-    if (!commandName || !response) {
+    if (!commandName || args.length === 0) {
       await context.bot.say(context.channel, 'Please provide a command name and a response.');
       return;
     }
@@ -25,7 +25,7 @@ export class AddCommandCommand extends BotCommand {
         data: {
           channelId: context.broadcasterId,
           name: commandName,
-          content: response,
+          content: args.join(' '),
         },
       });
 
