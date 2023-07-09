@@ -1,21 +1,28 @@
+import { BotCommandOptions } from '../types';
 import { BotCommandContext } from './bot-command-context';
 
 export abstract class BotCommand {
   private _name: string;
-  private _description: string;
+  private _description?: string;
+  private _aliases?: string[];
 
   public get name(): string {
     return this._name;
   }
 
-  public get description(): string {
+  public get description(): string | undefined {
     return this._description;
   }
 
-  public constructor(name: string, description: string) {
-    this._name = name;
-    this._description = description;
+  public get aliases(): string[] | undefined {
+    return this._aliases;
   }
 
-  public abstract execute(params: string[], context: BotCommandContext): void | Promise<void>;
+  public constructor(options: BotCommandOptions) {
+    this._name = options.name;
+    this._description = options.description;
+    this._aliases = options.aliases;
+  }
+
+  public abstract execute(context: BotCommandContext): void | Promise<void>;
 }

@@ -2,16 +2,21 @@
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, PrivateMessage } from '@twurple/chat';
-import { getBasicCommands, setAccessToken } from '../utils';
+import { getBaseCommands, setAccessToken } from '../utils';
 import { prisma } from 'database';
 import { BotCommand } from './bot-command';
 import { BotCommandContext } from './bot-command-context';
+import { CommandMatch } from '../types';
 
 export class Bot {
   private readonly _api: ApiClient;
   private readonly _chat: ChatClient;
   private readonly _authProvider: RefreshingAuthProvider;
-  private readonly _commands: Map<string, BotCommand> = new Map();
+  private readonly _baseCommands: Map<string, BotCommand> = new Map();
+
+  public get api(): ApiClient {
+    return this._api;
+  }
 
   public constructor() {
     const authProvider = new RefreshingAuthProvider({
@@ -22,7 +27,7 @@ export class Bot {
 
     this._authProvider = authProvider;
 
-    this._commands = getBasicCommands();
+    this._baseCommands = getBaseCommands();
 
     this._api = new ApiClient({ authProvider: authProvider });
 
@@ -60,30 +65,43 @@ export class Bot {
     await this._chat.connect();
   };
 
-  public handleOnMessage = async (channel: string, user: string, text: string, msg: PrivateMessage) => {
-    const match = this.findMatch(text);
-    if (match) {
-      await match.command.execute(match.params, new BotCommandContext(this, msg));
-    }
-  };
-
   public say = async (channel: string, message: string) => {
-    console.log(`Saying ${message} in ${channel}`);
     await this._chat.say(channel, message);
   };
 
-  private findMatch(text: string) {
-    const line = text.trim().replace(/  +/g, ' ');
-    for (const command of this._commands.values()) {
-      const [enteredCommand, ...params] = line.split(' ');
-      if (!enteredCommand.startsWith('!') || enteredCommand.slice(1) !== command.name) {
-        continue;
-      }
+  public reply = async (channel: string, text: string, replyMessage: PrivateMessage) => {
+    await this._chat.say(channel, text, { replyTo: replyMessage });
+  };
 
-      return {
-        command,
-        params,
-      };
+  private handleOnMessage = async (channel: string, user: string, text: string, msg: PrivateMessage) => {
+    const match = this.findMatch(text);
+    if (match) {
+      await match.command.execute(
+        new BotCommandContext({
+          bot: this,
+          channel,
+          user,
+          args: match.args,
+          msg,
+        }),
+      );
+    }
+  };
+
+  private findMatch(text: string): CommandMatch | null {
+    const line = text.trim().replace(/  +/g, ' ');
+    for (const command of this._baseCommands.values()) {
+      const [enteredCommand, ...args] = line.split(' ');
+
+      if (enteredCommand.startsWith('!')) {
+        const commandName = enteredCommand.slice(1);
+        if (commandName == command.name || command.aliases?.includes(commandName)) {
+          return {
+            command,
+            args,
+          };
+        }
+      }
     }
     return null;
   }

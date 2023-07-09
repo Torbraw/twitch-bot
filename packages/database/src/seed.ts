@@ -7,6 +7,9 @@ const accessTokenScopes: Prisma.AccessTokenScopeCreateManyInput[] = [
   {
     name: 'chat:read',
   },
+  {
+    name: 'moderator:read:followers',
+  },
 ];
 
 async function main() {
