@@ -6,6 +6,7 @@
     "dev": "tsx watch index.ts"
   },
   "dependencies": {
+    "@twurple/api": "^6.2.1",
     "@twurple/auth": "^6.2.1",
     "@twurple/chat": "^6.2.1"
   },

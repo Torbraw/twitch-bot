@@ -1,7 +1,9 @@
+import { AccessToken } from '@twurple/auth';
 import { prisma } from 'database';
-import { Token } from './types';
+import { DiceCommand } from './commands/dice.command';
+import { BotCommand } from './models/bot-command';
 
-export const setAccessToken = async (userId: string, tokenData: Token) => {
+export const setAccessToken = async (userId: string, tokenData: AccessToken) => {
   const scopes = tokenData.scope.map((scope) => ({
     name: scope,
   }));
@@ -28,4 +30,11 @@ export const setAccessToken = async (userId: string, tokenData: Token) => {
       },
     },
   });
+};
+
+export const getBasicCommands = () => {
+  const commands = new Map<string, BotCommand>();
+  commands.set('dice', new DiceCommand());
+
+  return commands;
 };
