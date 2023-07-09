@@ -1,4 +1,5 @@
 {
+  "license": "GPL-3.0",
   "prisma": {
     "schema": "packages/database/prisma/schema.prisma",
     "seed": "tsx packages/database/src/seed.ts"

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import { getCustomCommands } from './../utils';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, PrivateMessage } from '@twurple/chat';
@@ -12,7 +13,8 @@ export class Bot {
   private readonly _api: ApiClient;
   private readonly _chat: ChatClient;
   private readonly _authProvider: RefreshingAuthProvider;
-  private readonly _baseCommands: Map<string, BotCommand> = new Map();
+  private readonly _baseCommands: BotCommand[];
+  private _customCommands: Map<string, BotCommand[]> = new Map<string, BotCommand[]>();
 
   public get api(): ApiClient {
     return this._api;
@@ -42,7 +44,12 @@ export class Bot {
     });
   }
 
+  /**
+   * Initialize the bot with values that need async calls
+   */
   public init = async () => {
+    this._customCommands = await getCustomCommands();
+
     const userId = process.env.TWITCH_USER_ID as string;
     const accessToken = await prisma.accessToken.findUnique({
       where: { userId: userId },
@@ -74,7 +81,7 @@ export class Bot {
   };
 
   private handleOnMessage = async (channel: string, user: string, text: string, msg: PrivateMessage) => {
-    const match = this.findMatch(text);
+    const match = this.findMatch(text, msg.channelId || '');
     if (match) {
       await match.command.execute(
         new BotCommandContext({
@@ -88,21 +95,33 @@ export class Bot {
     }
   };
 
-  private findMatch(text: string): CommandMatch | null {
+  private findMatch(text: string, channelId: string): CommandMatch | null {
     const line = text.trim().replace(/  +/g, ' ');
-    for (const command of this._baseCommands.values()) {
-      const [enteredCommand, ...args] = line.split(' ');
+    const [enteredCommand, ...args] = line.split(' ');
 
-      if (enteredCommand.startsWith('!')) {
-        const commandName = enteredCommand.slice(1);
-        if (commandName == command.name || command.aliases?.includes(commandName)) {
-          return {
-            command,
-            args,
-          };
-        }
+    if (!enteredCommand.startsWith('!')) {
+      return null;
+    }
+    const commandName = enteredCommand.slice(1);
+
+    for (const command of this._baseCommands) {
+      if (command.doesMatchName(commandName)) {
+        return {
+          command,
+          args,
+        };
       }
     }
+
+    for (const customCommand of this._customCommands.get(channelId) || []) {
+      if (customCommand.doesMatchName(commandName)) {
+        return {
+          command: customCommand,
+          args,
+        };
+      }
+    }
+
     return null;
   }
 }

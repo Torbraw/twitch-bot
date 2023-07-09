@@ -22,3 +22,13 @@ model AccessTokenScope {
   name         String        @id
   accessTokens AccessToken[]
 }
+
+model CustomCommand {
+  channelId String
+  name      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([channelId, name])
+}

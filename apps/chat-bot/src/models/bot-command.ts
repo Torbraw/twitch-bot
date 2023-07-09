@@ -24,5 +24,9 @@ export abstract class BotCommand {
     this._aliases = options.aliases;
   }
 
+  public doesMatchName(name: string): boolean | undefined {
+    return name == this.name || this.aliases?.includes(name);
+  }
+
   public abstract execute(context: BotCommandContext): void | Promise<void>;
 }

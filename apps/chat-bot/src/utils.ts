@@ -1,8 +1,11 @@
 import { AccessToken } from '@twurple/auth';
-import { prisma } from 'database';
-import { DiceCommand } from './commands/dice.command';
+import { CustomCommand, prisma } from 'database';
 import { BotCommand } from './models/bot-command';
 import { FollowerCountCommand } from './commands/follower-count.command';
+import { AddCommandCommand } from './commands/add-command.command';
+import { EditCommandCommand } from './commands/edit-command.command';
+import { DeleteCommandCommand } from './commands/delete-command.command';
+import { BotCommandContext } from './models/bot-command-context';
 
 export const setAccessToken = async (userId: string, tokenData: AccessToken) => {
   const scopes = tokenData.scope.map((scope) => ({
@@ -33,10 +36,34 @@ export const setAccessToken = async (userId: string, tokenData: AccessToken) => 
   });
 };
 
-export const getBaseCommands = () => {
-  const commands = new Map<string, BotCommand>();
-  commands.set('dice', new DiceCommand());
-  commands.set('follower-count', new FollowerCountCommand());
+export const getBaseCommands = (): BotCommand[] => {
+  return [new FollowerCountCommand(), new AddCommandCommand(), new EditCommandCommand(), new DeleteCommandCommand()];
+};
 
-  return commands;
+export const getCustomCommands = async () => {
+  const commandsMap = new Map<string, BotCommand[]>();
+
+  const customCommands = await prisma.customCommand.findMany({});
+
+  for (const command of customCommands) {
+    const cmds = commandsMap.get(command.channelId) || [];
+    cmds.push(createBotCommandFromCustomCommand(command));
+    commandsMap.set(command.channelId, cmds);
+  }
+
+  return commandsMap;
+};
+
+export const createBotCommandFromCustomCommand = (command: CustomCommand): BotCommand => {
+  return new (class extends BotCommand {
+    public constructor() {
+      super({
+        name: command.name,
+      });
+    }
+
+    public async execute(context: BotCommandContext) {
+      await context.bot.say(context.channel, command.content);
+    }
+  })();
 };

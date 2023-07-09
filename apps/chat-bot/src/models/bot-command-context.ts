@@ -32,7 +32,7 @@ export class BotCommandContext {
   }
 
   public get broadcasterId(): string {
-    return this.msg.channelId as string;
+    return this.msg.channelId || '';
   }
 
   public constructor(options: BotCommandContextOptions) {

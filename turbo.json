@@ -6,7 +6,8 @@
     "TWITCH_USER_ID",
     "TWITCH_CLIENT_ID",
     "TWITCH_CLIENT_SECRET",
-    "TWITCH_AUTHORIZATION_CODE"
+    "TWITCH_AUTHORIZATION_CODE",
+    "NODE_ENV"
   ],
   "pipeline": {
     "build": {
