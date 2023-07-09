@@ -1,6 +1,6 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { prisma } from 'database';
+import { Prisma, prisma } from 'database';
 
 export class DeleteCommandCommand extends BotCommand {
   public constructor() {
@@ -32,6 +32,13 @@ export class DeleteCommandCommand extends BotCommand {
       context.bot.removeCustomCommand(context.broadcasterId, commandName);
       await context.bot.say(context.channel, `The command ${commandName} was deleted.`);
     } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          await context.bot.say(context.channel, `The command ${commandName} you are trying to delete does not exist.`);
+          return;
+        }
+      }
+
       console.error(e);
       await context.bot.say(context.channel, `An error occurred while deleting the command ${commandName}.`);
     }
