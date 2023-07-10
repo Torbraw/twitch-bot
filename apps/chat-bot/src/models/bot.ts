@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { getCustomCommands } from './../utils';
+import { getCustomCommands } from '../utils/utils';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, PrivateMessage } from '@twurple/chat';
-import { getBaseCommands, setAccessToken } from '../utils';
+import { getBaseCommands, setAccessToken } from '../utils/utils';
 import { prisma } from 'database';
 import { BotCommand } from './bot-command';
 import { BotCommandContext } from './bot-command-context';
 import { CommandMatch } from '../types';
+import logger from '../utils/logger';
 
 export class Bot {
   //#region Base Properties & constructor
@@ -41,7 +42,7 @@ export class Bot {
     });
 
     this._chat.onConnect(() => {
-      console.log('Successfully to chat');
+      logger.logInfo('Successfully connected to chat');
     });
   }
   //#endregion
@@ -58,7 +59,10 @@ export class Bot {
       where: { userId: userId },
       include: { scopes: true },
     });
-    if (!accessToken) throw new Error('No access token found');
+    if (!accessToken) {
+      logger.logError('No access token found');
+      throw new Error('No access token found');
+    }
 
     this._authProvider.addUser(
       userId,

@@ -1,6 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { Prisma, prisma } from 'database';
+import logger from '../utils/logger';
 
 export class DeleteCommandCommand extends BotCommand {
   public constructor() {
@@ -39,7 +40,7 @@ export class DeleteCommandCommand extends BotCommand {
         }
       }
 
-      console.error(e);
+      logger.handleError(e);
       await context.bot.say(context.channel, `An error occurred while deleting the command ${commandName}.`);
     }
   }

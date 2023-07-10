@@ -1,8 +1,9 @@
 import { Bot } from './src/models/bot';
+import logger from './src/utils/logger';
 
 void (async () => {
+  logger.logInfo('Starting bot');
   const bot = new Bot();
   await bot.init();
-
-  console.log('Bot started');
+  logger.logInfo('Bot is running');
 })();

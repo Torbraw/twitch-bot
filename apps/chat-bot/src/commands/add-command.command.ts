@@ -1,7 +1,8 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { Prisma, prisma } from 'database';
-import { createBotCommandFromCustomCommand } from '../utils';
+import { createBotCommandFromCustomCommand } from '../utils/utils';
+import logger from '../utils/logger';
 
 export class AddCommandCommand extends BotCommand {
   public constructor() {
@@ -42,7 +43,7 @@ export class AddCommandCommand extends BotCommand {
         }
       }
 
-      console.error(e);
+      logger.handleError(e);
       await context.bot.say(context.channel, `An error occurred while adding the command ${commandName}.`);
     }
   }

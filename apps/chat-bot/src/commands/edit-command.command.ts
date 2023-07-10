@@ -1,6 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { prisma } from 'database';
+import logger from '../utils/logger';
 
 export class EditCommandCommand extends BotCommand {
   public constructor() {
@@ -34,7 +35,7 @@ export class EditCommandCommand extends BotCommand {
 
       await context.bot.say(context.channel, `The command ${commandName} was edited.`);
     } catch (e) {
-      console.error(e);
+      logger.handleError(e);
       await context.bot.say(context.channel, `An error occurred while editing the command ${commandName}.`);
     }
   }

@@ -7,7 +7,8 @@
     "TWITCH_CLIENT_ID",
     "TWITCH_CLIENT_SECRET",
     "TWITCH_AUTHORIZATION_CODE",
-    "NODE_ENV"
+    "NODE_ENV",
+    "LOGGER_LEVEL"
   ],
   "pipeline": {
     "build": {

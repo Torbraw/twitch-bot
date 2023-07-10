@@ -8,7 +8,8 @@
   "dependencies": {
     "@twurple/api": "^6.2.1",
     "@twurple/auth": "^6.2.1",
-    "@twurple/chat": "^6.2.1"
+    "@twurple/chat": "^6.2.1",
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "database": "*",

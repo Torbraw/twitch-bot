@@ -1,11 +1,11 @@
 import { AccessToken } from '@twurple/auth';
 import { CustomCommand, prisma } from 'database';
-import { BotCommand } from './models/bot-command';
-import { FollowerCountCommand } from './commands/follower-count.command';
-import { AddCommandCommand } from './commands/add-command.command';
-import { EditCommandCommand } from './commands/edit-command.command';
-import { DeleteCommandCommand } from './commands/delete-command.command';
-import { BotCommandContext } from './models/bot-command-context';
+import { BotCommand } from '../models/bot-command';
+import { FollowerCountCommand } from '../commands/follower-count.command';
+import { AddCommandCommand } from '../commands/add-command.command';
+import { EditCommandCommand } from '../commands/edit-command.command';
+import { DeleteCommandCommand } from '../commands/delete-command.command';
+import { BotCommandContext } from '../models/bot-command-context';
 
 export const setAccessToken = async (userId: string, tokenData: AccessToken) => {
   const scopes = tokenData.scope.map((scope) => ({
