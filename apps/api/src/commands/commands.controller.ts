@@ -1,10 +1,15 @@
-import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CustomCommand, Prisma, UpdateCustomCommand } from 'common';
 import { CommandsService } from './commands.service';
 
 @Controller('commands')
 export class CommandsController {
   public constructor(private commandsService: CommandsService) {}
+
+  @Get()
+  public async getCommands(): Promise<CustomCommand[]> {
+    return await this.commandsService.getCommands();
+  }
 
   @Post()
   public async createCommand(@Body() data: Prisma.CustomCommandCreateInput): Promise<CustomCommand> {
