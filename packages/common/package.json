@@ -8,7 +8,8 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "build-package": "tsup"
   },
   "dependencies": {
     "@prisma/client": "^4.16.2"
