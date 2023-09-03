@@ -8,7 +8,7 @@ export class Logger {
    * Instance of the winston logger
    */
   private logger = winston.createLogger({
-    transports: [new winston.transports.Console({ level: process.env.LOGGER_LEVEL })],
+    transports: [new winston.transports.Console({ level: process.env.BOT_LOGGER_LEVEL })],
     format: winston.format.printf((log) => `[${log.level.toUpperCase()}] - ${log.message as string}`),
   });
 
@@ -43,7 +43,7 @@ export class Logger {
    */
   public handleError(error: unknown): void {
     if (error instanceof Error) {
-      logger.logError(`${error.message} \n ----- \n ${error.stack || ''}`);
+      this.logError(`${error.message} \n ----- \n ${error.stack || ''}`);
     } else {
       this.logger.log('error', error);
     }

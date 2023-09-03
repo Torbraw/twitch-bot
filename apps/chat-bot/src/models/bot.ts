@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { getCustomCommands } from '../utils/utils';
+import { callApi, getCustomCommands } from '../utils/utils';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, PrivateMessage } from '@twurple/chat';
-import { getBaseCommands, setAccessToken } from '../utils/utils';
-import { prisma } from 'database';
+import { getBaseCommands } from '../utils/utils';
 import { BotCommand } from './bot-command';
 import { BotCommandContext } from './bot-command-context';
 import { CommandMatch } from '../types';
 import logger from '../utils/logger';
+import { AccessTokenWithScopes, UpsertAccessToken } from 'common';
 
 export class Bot {
   //#region Base Properties & constructor
@@ -26,7 +26,21 @@ export class Bot {
     const authProvider = new RefreshingAuthProvider({
       clientId: process.env.TWITCH_CLIENT_ID as string,
       clientSecret: process.env.TWITCH_CLIENT_SECRET as string,
-      onRefresh: async (userId, newTokenData) => await setAccessToken(userId, newTokenData),
+      onRefresh: async (userId, tokenData) => {
+        const scopes = tokenData.scope.map((scope) => ({
+          name: scope,
+        }));
+
+        await callApi(`access-tokens/${userId}`, 'POST', {
+          accessToken: tokenData.accessToken,
+          expiresIn: tokenData.expiresIn,
+          obtainmentTimestamp: tokenData.obtainmentTimestamp,
+          refreshToken: tokenData.refreshToken,
+          scopes: {
+            connect: scopes,
+          },
+        } satisfies UpsertAccessToken);
+      },
     });
 
     this._authProvider = authProvider;
@@ -55,28 +69,28 @@ export class Bot {
     this._customCommands = await getCustomCommands();
 
     const userId = process.env.TWITCH_USER_ID as string;
-    const accessToken = await prisma.accessToken.findUnique({
-      where: { userId: userId },
-      include: { scopes: true },
-    });
-    if (!accessToken) {
-      logger.logError('No access token found');
-      throw new Error('No access token found');
+    try {
+      const accessToken = await callApi<AccessTokenWithScopes>(`access-tokens/${userId}`, 'GET', null);
+
+      this._authProvider.addUser(
+        userId,
+        {
+          expiresIn: accessToken.expiresIn,
+          refreshToken: accessToken.refreshToken,
+          accessToken: accessToken.accessToken,
+          obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
+          scope: accessToken.scopes.map((scope) => scope.name),
+        },
+        ['chat'],
+      );
+
+      await this._chat.connect();
+    } catch (e) {
+      logger.handleError(e);
+      return false;
     }
 
-    this._authProvider.addUser(
-      userId,
-      {
-        expiresIn: accessToken.expiresIn,
-        refreshToken: accessToken.refreshToken,
-        accessToken: accessToken.accessToken,
-        obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
-        scope: accessToken.scopes.map((scope) => scope.name),
-      },
-      ['chat'],
-    );
-
-    await this._chat.connect();
+    return true;
   };
 
   public addCustomCommand = (channelId: string, command: BotCommand) => {

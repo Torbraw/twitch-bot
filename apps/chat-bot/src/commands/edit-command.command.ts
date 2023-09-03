@@ -1,7 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { prisma } from 'database';
 import logger from '../utils/logger';
+import { callApi } from '../utils/utils';
 
 export class EditCommandCommand extends BotCommand {
   public constructor() {
@@ -21,17 +21,7 @@ export class EditCommandCommand extends BotCommand {
     }
 
     try {
-      await prisma.customCommand.update({
-        where: {
-          channelId_name: {
-            channelId: context.broadcasterId,
-            name: commandName,
-          },
-        },
-        data: {
-          content: response,
-        },
-      });
+      await callApi(`commands/${context.broadcasterId}/${commandName}`, 'PUT', response);
 
       await context.bot.say(context.channel, `The command ${commandName} was edited.`);
     } catch (e) {

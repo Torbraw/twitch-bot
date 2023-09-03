@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AccessTokenWithScopes, Prisma } from 'common';
+import { AccessTokenWithScopes, UpsertAccessToken } from 'common';
 
 @Injectable()
 export class AccessTokensService {
@@ -21,10 +21,13 @@ export class AccessTokensService {
     return accessToken;
   }
 
-  public async createOrUpdateAccessToken(userId: string, data: Prisma.AccessTokenCreateInput): Promise<void> {
+  public async createOrUpdateAccessToken(userId: string, data: UpsertAccessToken): Promise<void> {
     await this.prisma.accessToken.upsert({
       where: { userId },
-      create: data,
+      create: {
+        userId,
+        ...data,
+      },
       update: data,
     });
   }

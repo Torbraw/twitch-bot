@@ -14,3 +14,5 @@ export type AccessTokenWithScopes = Prisma.AccessTokenGetPayload<{
 }>;
 
 export type UpdateCustomCommand = Pick<CustomCommand, 'content'>;
+
+export type UpsertAccessToken = Omit<Prisma.AccessTokenCreateInput, 'userId'>;

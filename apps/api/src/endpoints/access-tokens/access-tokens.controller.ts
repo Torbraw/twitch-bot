@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AccessTokensService } from './access-tokens.service';
-import { AccessTokenWithScopes, Prisma } from 'common';
+import { AccessTokenWithScopes, UpsertAccessToken } from 'common';
 
 @Controller('access-tokens')
 export class AccessTokensController {
@@ -14,7 +14,7 @@ export class AccessTokensController {
   @Post(':userId')
   public async createOrUpdateAccessToken(
     @Param('userId') userId: string,
-    @Body() data: Prisma.AccessTokenCreateInput,
+    @Body() data: UpsertAccessToken,
   ): Promise<void> {
     await this.accessTokensService.createOrUpdateAccessToken(userId, data);
   }

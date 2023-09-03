@@ -1,40 +1,11 @@
-import { AccessToken } from '@twurple/auth';
-import { CustomCommand, prisma } from 'database';
+import { CustomCommand } from 'common';
+import { BASE_API_URL } from './config';
 import { BotCommand } from '../models/bot-command';
 import { FollowerCountCommand } from '../commands/follower-count.command';
 import { AddCommandCommand } from '../commands/add-command.command';
 import { EditCommandCommand } from '../commands/edit-command.command';
 import { DeleteCommandCommand } from '../commands/delete-command.command';
 import { BotCommandContext } from '../models/bot-command-context';
-
-export const setAccessToken = async (userId: string, tokenData: AccessToken) => {
-  const scopes = tokenData.scope.map((scope) => ({
-    name: scope,
-  }));
-
-  await prisma.accessToken.upsert({
-    where: { userId },
-    create: {
-      userId,
-      accessToken: tokenData.accessToken,
-      expiresIn: tokenData.expiresIn,
-      obtainmentTimestamp: tokenData.obtainmentTimestamp,
-      refreshToken: tokenData.refreshToken,
-      scopes: {
-        connect: scopes,
-      },
-    },
-    update: {
-      accessToken: tokenData.accessToken,
-      expiresIn: tokenData.expiresIn,
-      obtainmentTimestamp: tokenData.obtainmentTimestamp,
-      refreshToken: tokenData.refreshToken,
-      scopes: {
-        connect: scopes,
-      },
-    },
-  });
-};
 
 export const getBaseCommands = (): BotCommand[] => {
   return [new FollowerCountCommand(), new AddCommandCommand(), new EditCommandCommand(), new DeleteCommandCommand()];
@@ -43,7 +14,7 @@ export const getBaseCommands = (): BotCommand[] => {
 export const getCustomCommands = async () => {
   const commandsMap = new Map<string, BotCommand[]>();
 
-  const customCommands = await prisma.customCommand.findMany({});
+  const customCommands = await callApi<CustomCommand[]>('commands', 'GET', null);
 
   for (const command of customCommands) {
     const cmds = commandsMap.get(command.channelId) || [];
@@ -66,4 +37,16 @@ export const createBotCommandFromCustomCommand = (command: CustomCommand): BotCo
       await context.bot.say(context.channel, command.content);
     }
   })();
+};
+
+export const callApi = async <T>(url: string, method: string, body: unknown): Promise<T> => {
+  const response = await fetch(`${BASE_API_URL}/${url}`, {
+    method,
+    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return response.json() as Promise<T>;
 };

@@ -2,14 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [".env"],
   "globalEnv": [
-    "CLOUDFRONT_URL",
+    "DATABASE_URL",
     "TWITCH_USER_ID",
     "TWITCH_CLIENT_ID",
     "TWITCH_CLIENT_SECRET",
-    "TWITCH_AUTHORIZATION_CODE",
     "NODE_ENV",
-    "LOGGER_LEVEL",
-    "NEST_LOGGER_LEVELS"
+    "BOT_LOGGER_LEVEL",
+    "NEST_LOGGER_LEVELS",
+    "API_ENDPOINT"
   ],
   "pipeline": {
     "build": {

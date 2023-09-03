@@ -1,7 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { Prisma, prisma } from 'database';
-import { createBotCommandFromCustomCommand } from '../utils/utils';
+import { CustomCommand, Prisma } from 'common';
+import { callApi, createBotCommandFromCustomCommand } from '../utils/utils';
 import logger from '../utils/logger';
 
 export class AddCommandCommand extends BotCommand {
@@ -22,12 +22,10 @@ export class AddCommandCommand extends BotCommand {
     }
 
     try {
-      const newCommand = await prisma.customCommand.create({
-        data: {
-          channelId: context.broadcasterId,
-          name: commandName,
-          content: args.join(' '),
-        },
+      const newCommand = await callApi<CustomCommand>('commands', 'POST', {
+        channelId: context.broadcasterId,
+        name: commandName,
+        content: args.join(' '),
       });
 
       context.bot.addCustomCommand(context.broadcasterId, createBotCommandFromCustomCommand(newCommand));

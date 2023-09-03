@@ -1,7 +1,8 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { Prisma, prisma } from 'database';
+import { Prisma } from 'common';
 import logger from '../utils/logger';
+import { callApi } from '../utils/utils';
 
 export class DeleteCommandCommand extends BotCommand {
   public constructor() {
@@ -21,14 +22,7 @@ export class DeleteCommandCommand extends BotCommand {
     }
 
     try {
-      await prisma.customCommand.delete({
-        where: {
-          channelId_name: {
-            channelId: context.broadcasterId,
-            name: commandName,
-          },
-        },
-      });
+      await callApi(`commands/${context.broadcasterId}/${commandName}`, 'DEL', null);
 
       context.bot.removeCustomCommand(context.broadcasterId, commandName);
       await context.bot.say(context.channel, `The command ${commandName} was deleted.`);
