@@ -1,5 +1,5 @@
 import { CustomCommand, ExceptionResponse } from 'common';
-import { BASE_API_URL } from './config';
+import { BASE_API_URL } from '../config';
 import { BotCommand } from '../models/bot-command';
 import { FollowerCountCommand } from '../commands/follower-count.command';
 import { AddCommandCommand } from '../commands/add-command.command';
