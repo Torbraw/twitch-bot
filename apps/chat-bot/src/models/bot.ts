@@ -69,26 +69,24 @@ export class Bot {
     this._customCommands = await getCustomCommands();
 
     const userId = process.env.TWITCH_USER_ID as string;
-    try {
-      const accessToken = await callApi<AccessTokenWithScopes>(`access-tokens/${userId}`, 'GET', null);
-
-      this._authProvider.addUser(
-        userId,
-        {
-          expiresIn: accessToken.expiresIn,
-          refreshToken: accessToken.refreshToken,
-          accessToken: accessToken.accessToken,
-          obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
-          scope: accessToken.scopes.map((scope) => scope.name),
-        },
-        ['chat'],
-      );
-
-      await this._chat.connect();
-    } catch (e) {
-      logger.handleError(e);
+    const accessToken = await callApi<AccessTokenWithScopes>(`access-tokens/${userId}`, 'GET', null);
+    if ('statusCode' in accessToken) {
       return false;
     }
+
+    this._authProvider.addUser(
+      userId,
+      {
+        expiresIn: accessToken.expiresIn,
+        refreshToken: accessToken.refreshToken,
+        accessToken: accessToken.accessToken,
+        obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
+        scope: accessToken.scopes.map((scope) => scope.name),
+      },
+      ['chat'],
+    );
+
+    await this._chat.connect();
 
     return true;
   };

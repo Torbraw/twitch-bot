@@ -1,4 +1,4 @@
-import { CustomCommand } from 'common';
+import { CustomCommand, ExceptionResponse } from 'common';
 import { BASE_API_URL } from './config';
 import { BotCommand } from '../models/bot-command';
 import { FollowerCountCommand } from '../commands/follower-count.command';
@@ -6,6 +6,7 @@ import { AddCommandCommand } from '../commands/add-command.command';
 import { EditCommandCommand } from '../commands/edit-command.command';
 import { DeleteCommandCommand } from '../commands/delete-command.command';
 import { BotCommandContext } from '../models/bot-command-context';
+import logger from './logger';
 
 export const getBaseCommands = (): BotCommand[] => {
   return [new FollowerCountCommand(), new AddCommandCommand(), new EditCommandCommand(), new DeleteCommandCommand()];
@@ -15,6 +16,9 @@ export const getCustomCommands = async () => {
   const commandsMap = new Map<string, BotCommand[]>();
 
   const customCommands = await callApi<CustomCommand[]>('commands', 'GET', null);
+  if ('statusCode' in customCommands) {
+    return commandsMap;
+  }
 
   for (const command of customCommands) {
     const cmds = commandsMap.get(command.channelId) || [];
@@ -39,14 +43,22 @@ export const createBotCommandFromCustomCommand = (command: CustomCommand): BotCo
   })();
 };
 
-export const callApi = async <T>(url: string, method: string, body: unknown): Promise<T> => {
-  const response = await fetch(`${BASE_API_URL}/${url}`, {
-    method,
-    body: body ? JSON.stringify(body) : undefined,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+export const callApi = async <T>(url: string, method: string, body: unknown): Promise<T | ExceptionResponse> => {
+  try {
+    const response = await fetch(`${BASE_API_URL}/${url}`, {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  return response.json() as Promise<T>;
+    return response.json() as Promise<T | ExceptionResponse>;
+  } catch (error) {
+    logger.handleError(error);
+    return {
+      statusCode: 500,
+      message: 'Internal server error',
+    };
+  }
 };

@@ -9,7 +9,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
   public constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   public catch(exception: unknown, host: ArgumentsHost): void {
-    this.logger.error(exception);
     const { httpAdapter } = this.httpAdapterHost;
 
     const ctx = host.switchToHttp();
@@ -39,6 +38,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message: 'Bad Request',
         code: exception.code,
       };
+    }
+
+    if (responseBody.statusCode === 500) {
+      this.logger.error(exception);
     }
 
     httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode);
