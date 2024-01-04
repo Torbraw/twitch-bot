@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { callApi, getCustomCommands } from '../utils/utils';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
@@ -26,12 +25,12 @@ export class Bot {
     const authProvider = new RefreshingAuthProvider({
       clientId: process.env.TWITCH_CLIENT_ID as string,
       clientSecret: process.env.TWITCH_CLIENT_SECRET as string,
-      onRefresh: async (userId, tokenData) => {
+      onRefresh: (userId, tokenData) => {
         const scopes = tokenData.scope.map((scope) => ({
           name: scope,
         }));
 
-        await callApi(`access-tokens/${userId}`, 'POST', {
+        callApi(`access-tokens/${userId}`, 'POST', {
           accessToken: tokenData.accessToken,
           expiresIn: tokenData.expiresIn,
           obtainmentTimestamp: tokenData.obtainmentTimestamp,
@@ -39,7 +38,9 @@ export class Bot {
           scopes: {
             connect: scopes,
           },
-        } satisfies UpsertAccessToken);
+        } satisfies UpsertAccessToken).catch((e) => {
+          logger.handleError(e);
+        });
       },
     });
 
@@ -51,8 +52,10 @@ export class Bot {
 
     this._chat = new ChatClient({ authProvider, channels: ['torbraw'], authIntents: ['chat'] });
 
-    this._chat.onMessage(async (channel, user, text, msg) => {
-      await this.handleOnMessage(channel, user, text, msg);
+    this._chat.onMessage((channel, user, text, msg) => {
+      this.handleOnMessage(channel, user, text, msg).catch((e) => {
+        logger.handleError(e);
+      });
     });
 
     this._chat.onConnect(() => {

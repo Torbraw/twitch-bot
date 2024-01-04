@@ -6,11 +6,20 @@ export type ExceptionResponse = {
   code?: string;
 };
 
-const accessTokenWithScopes = {
-  scopes: true,
-} satisfies Prisma.AccessTokenInclude;
-export type AccessTokenWithScopes = Prisma.AccessTokenGetPayload<{
-  include: typeof accessTokenWithScopes;
+export type AccessTokenWithScopes = {
+  obtainedTimestamp: number;
+} & Prisma.AccessTokenGetPayload<{
+  select: {
+    userId: true;
+    accessToken: true;
+    refreshToken: true;
+    expiresIn: true;
+    scopes: {
+      select: {
+        name: true;
+      };
+    };
+  };
 }>;
 
 export type UpdateCustomCommand = Pick<CustomCommand, 'content'>;
