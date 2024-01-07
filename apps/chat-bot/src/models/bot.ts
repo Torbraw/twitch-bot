@@ -40,6 +40,7 @@ export class Bot {
           },
         } satisfies UpsertAccessToken).catch((e) => {
           logger.handleError(e);
+          this._authProvider.removeUser(userId);
         });
       },
     });

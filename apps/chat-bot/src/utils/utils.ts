@@ -43,7 +43,11 @@ export const createBotCommandFromCustomCommand = (command: CustomCommand): BotCo
   })();
 };
 
-export const callApi = async <T>(url: string, method: string, body: unknown): Promise<T | ExceptionResponse> => {
+export const callApi = async <T = Record<string, never>>(
+  url: string,
+  method: string,
+  body: unknown,
+): Promise<T | ExceptionResponse> => {
   try {
     const response = await fetch(`${BASE_API_URL}/${url}`, {
       method,
@@ -52,8 +56,10 @@ export const callApi = async <T>(url: string, method: string, body: unknown): Pr
         'Content-Type': 'application/json',
       },
     });
-
-    return response.json() as Promise<T | ExceptionResponse>;
+    if (response.headers.get('content-type')?.includes('application/json')) {
+      return response.json() as Promise<T | ExceptionResponse>;
+    }
+    return {} as T;
   } catch (error) {
     logger.handleError(error);
     return {
