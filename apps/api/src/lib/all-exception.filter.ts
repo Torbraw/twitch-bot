@@ -40,7 +40,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       };
     }
 
-    if (responseBody.statusCode === 500) {
+    if (process.env.NODE_ENV !== 'production' || responseBody.statusCode === 500) {
       this.logger.error(exception);
     }
 

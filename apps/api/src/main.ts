@@ -1,8 +1,8 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './filters/all-exception.filter';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AllExceptionsFilter } from './lib/all-exception.filter';
+import { LoggingInterceptor } from './lib/logging.interceptor';
 import { LogLevel } from '@nestjs/common';
 
 async function bootstrap() {

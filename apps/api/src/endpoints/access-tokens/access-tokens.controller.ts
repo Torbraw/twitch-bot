@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AccessTokensService } from './access-tokens.service';
-import { AccessTokenWithScopes, UpsertAccessToken } from 'common';
+import { AccessTokenWithScopes, UpsertAccessToken, UpsertAccessTokenSchema } from 'common';
+import { ValibotValidationPipe } from 'src/lib/valibot-validation.pipe';
 
 @Controller('access-tokens')
 export class AccessTokensController {
@@ -14,7 +15,7 @@ export class AccessTokensController {
   @Post(':userId')
   public async createOrUpdateAccessToken(
     @Param('userId') userId: string,
-    @Body() data: UpsertAccessToken,
+    @Body(new ValibotValidationPipe(UpsertAccessTokenSchema)) data: UpsertAccessToken,
   ): Promise<void> {
     await this.accessTokensService.createOrUpdateAccessToken(userId, data);
   }
