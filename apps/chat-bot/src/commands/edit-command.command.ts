@@ -25,7 +25,9 @@ export class EditCommandCommand extends BotCommand {
       return;
     }
 
-    const result = await callApi<CustomCommand>(`commands/${context.broadcasterId}/${commandName}`, 'PATCH', response);
+    const result = await callApi<CustomCommand>(`commands/${context.broadcasterId}/${commandName}`, 'PATCH', {
+      content: response,
+    });
     if ('statusCode' in result) {
       if (result.code === 'P2025') {
         await context.bot.say(
