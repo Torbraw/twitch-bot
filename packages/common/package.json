@@ -12,7 +12,8 @@
     "build-package": "tsup"
   },
   "dependencies": {
-    "@prisma/client": "^4.16.2"
+    "@prisma/client": "^4.16.2",
+    "valibot": "^0.25.0"
   },
   "devDependencies": {
     "@types/node": "^20.4.1",

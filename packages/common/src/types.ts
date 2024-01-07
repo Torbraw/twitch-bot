@@ -1,4 +1,8 @@
 import { CustomCommand, Prisma } from '@prisma/client';
+import { UpsertAccessTokenSchema } from './schemas';
+import { Output } from 'valibot';
+
+type Satisfies<T extends U, U> = T;
 
 export type ExceptionResponse = {
   statusCode: number;
@@ -7,7 +11,7 @@ export type ExceptionResponse = {
 };
 
 export type AccessTokenWithScopes = {
-  obtainedTimestamp: number;
+  obtainmentTimestamp: number;
 } & Prisma.AccessTokenGetPayload<{
   select: {
     userId: true;
@@ -24,4 +28,7 @@ export type AccessTokenWithScopes = {
 
 export type UpdateCustomCommand = Pick<CustomCommand, 'content'>;
 
-export type UpsertAccessToken = Omit<Prisma.AccessTokenCreateInput, 'userId'>;
+export type UpsertAccessToken = Satisfies<
+  Output<typeof UpsertAccessTokenSchema>,
+  Omit<Prisma.AccessTokenCreateInput, 'userId'>
+>;
