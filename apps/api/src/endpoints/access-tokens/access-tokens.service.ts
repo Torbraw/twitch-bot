@@ -18,7 +18,11 @@ export class AccessTokensService {
     if (!accessToken) {
       throw new NotFoundException('Access token not found');
     }
-    return accessToken;
+
+    return {
+      ...accessToken,
+      obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
+    };
   }
 
   public async createOrUpdateAccessToken(userId: string, data: UpsertAccessToken): Promise<void> {
