@@ -1,6 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { CustomCommand, Prisma, UpdateCustomCommand } from 'common';
+import {
+  CustomCommand,
+  UpdateCustomCommand,
+  CreateCustomCommand,
+  CreateCustomCommandSchema,
+  UpdateCustomCommandSchema,
+} from 'common';
 import { CommandsService } from './commands.service';
+import { ValibotValidationPipe } from 'src/lib/valibot-validation.pipe';
 
 @Controller('commands')
 export class CommandsController {
@@ -12,7 +19,9 @@ export class CommandsController {
   }
 
   @Post()
-  public async createCommand(@Body() data: Prisma.CustomCommandCreateInput): Promise<CustomCommand> {
+  public async createCommand(
+    @Body(new ValibotValidationPipe(CreateCustomCommandSchema)) data: CreateCustomCommand,
+  ): Promise<CustomCommand> {
     return await this.commandsService.createCommand(data);
   }
 
@@ -20,7 +29,7 @@ export class CommandsController {
   public async updateCommand(
     @Param('channelId') channelId: string,
     @Param('name') name: string,
-    @Body() data: UpdateCustomCommand,
+    @Body(new ValibotValidationPipe(UpdateCustomCommandSchema)) data: UpdateCustomCommand,
   ): Promise<CustomCommand> {
     return await this.commandsService.updateCommand(channelId, name, data);
   }

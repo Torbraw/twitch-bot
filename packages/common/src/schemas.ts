@@ -9,6 +9,8 @@ import {
   maxLength,
   StringSchema,
   maxValue,
+  union,
+  null_,
 } from 'valibot';
 
 const DEFAULT_STRING: StringSchema = string([
@@ -23,10 +25,20 @@ const DEFAULT_POSITIVE_NUMBER = number([
 
 export const UpsertAccessTokenSchema = object({
   accessToken: DEFAULT_STRING,
-  expiresIn: DEFAULT_POSITIVE_NUMBER,
+  expiresIn: union([DEFAULT_POSITIVE_NUMBER, null_()]),
   obtainmentTimestamp: DEFAULT_POSITIVE_NUMBER,
-  refreshToken: DEFAULT_STRING,
+  refreshToken: union([DEFAULT_STRING, null_()]),
   scopes: object({
     connect: array(object({ name: DEFAULT_STRING })),
   }),
+});
+
+export const UpdateCustomCommandSchema = object({
+  content: DEFAULT_STRING,
+});
+
+export const CreateCustomCommandSchema = object({
+  content: DEFAULT_STRING,
+  channelId: DEFAULT_STRING,
+  name: DEFAULT_STRING,
 });

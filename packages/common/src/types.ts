@@ -1,5 +1,5 @@
 import { CustomCommand, Prisma } from '@prisma/client';
-import { UpsertAccessTokenSchema } from './schemas';
+import { UpsertAccessTokenSchema, UpdateCustomCommandSchema, CreateCustomCommandSchema } from './schemas';
 import { Output } from 'valibot';
 
 type Satisfies<T extends U, U> = T;
@@ -26,7 +26,8 @@ export type AccessTokenWithScopes = {
   };
 }>;
 
-export type UpdateCustomCommand = Pick<CustomCommand, 'content'>;
+export type UpdateCustomCommand = Satisfies<Output<typeof UpdateCustomCommandSchema>, Pick<CustomCommand, 'content'>>;
+export type CreateCustomCommand = Satisfies<Output<typeof CreateCustomCommandSchema>, Prisma.CustomCommandCreateInput>;
 
 export type UpsertAccessToken = Satisfies<
   Output<typeof UpsertAccessTokenSchema>,
