@@ -7,7 +7,7 @@ import { BotCommand } from './bot-command';
 import { BotCommandContext } from './bot-command-context';
 import { CommandMatch } from '../types';
 import logger from '../utils/logger';
-import { AccessTokenWithScopes, UpsertAccessToken } from 'common';
+import { AccessTokenWithScopes, UpdateAccessToken } from 'common';
 
 export class Bot {
   //#region Base Properties & constructor
@@ -26,19 +26,12 @@ export class Bot {
       clientId: process.env.TWITCH_CLIENT_ID as string,
       clientSecret: process.env.TWITCH_CLIENT_SECRET as string,
       onRefresh: (userId, tokenData) => {
-        const scopes = tokenData.scope.map((scope) => ({
-          name: scope,
-        }));
-
-        callApi(`access-tokens/${userId}`, 'POST', {
+        callApi(`access-tokens/${userId}`, 'PUT', {
           accessToken: tokenData.accessToken,
           expiresIn: tokenData.expiresIn,
           obtainmentTimestamp: tokenData.obtainmentTimestamp,
           refreshToken: tokenData.refreshToken,
-          scopes: {
-            connect: scopes,
-          },
-        } satisfies UpsertAccessToken).catch((e) => {
+        } satisfies UpdateAccessToken).catch((e) => {
           logger.handleError(e);
           this._authProvider.removeUser(userId);
         });

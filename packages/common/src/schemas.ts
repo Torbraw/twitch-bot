@@ -13,33 +13,37 @@ import {
   null_,
 } from 'valibot';
 
-const DEFAULT_STRING: StringSchema = string([
+const defaultString: StringSchema = string([
   minLength(1, 'Must not be empty'),
   maxLength(191, 'Exceeds max length of 191'),
 ]);
-const DEFAULT_POSITIVE_NUMBER = (v = 2147483647) =>
+
+const defaultPositiveNumber = (v = 2147483647) =>
   number([
     minValue(0, 'Must be a positive number'),
     integer('Must be an integer'),
     maxValue(v, 'Exceeds max value of 2147483647'),
   ]);
 
-export const UpsertAccessTokenSchema = object({
-  accessToken: DEFAULT_STRING,
-  expiresIn: union([DEFAULT_POSITIVE_NUMBER(), null_()]),
-  obtainmentTimestamp: DEFAULT_POSITIVE_NUMBER(9007199254740991),
-  refreshToken: union([DEFAULT_STRING, null_()]),
+const accessTokenBaseSchema = {
+  accessToken: defaultString,
+  expiresIn: union([defaultPositiveNumber(), null_()]),
+  obtainmentTimestamp: defaultPositiveNumber(9007199254740991),
+  refreshToken: union([defaultString, null_()]),
+};
+export const CreateAccessTokenSchema = object({
+  ...accessTokenBaseSchema,
   scopes: object({
-    connect: array(object({ name: DEFAULT_STRING })),
+    connect: array(object({ name: defaultString })),
   }),
 });
+export const UpdateAccessTokenSchema = object(accessTokenBaseSchema);
 
 export const UpdateCustomCommandSchema = object({
-  content: DEFAULT_STRING,
+  content: defaultString,
 });
-
 export const CreateCustomCommandSchema = object({
-  content: DEFAULT_STRING,
-  channelId: DEFAULT_STRING,
-  name: DEFAULT_STRING,
+  content: defaultString,
+  channelId: defaultString,
+  name: defaultString,
 });
