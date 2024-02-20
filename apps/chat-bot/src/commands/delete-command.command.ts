@@ -1,7 +1,6 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { Prisma, prisma } from 'database';
-import logger from '../utils/logger';
+import { CustomCommand } from 'common';
 
 export class DeleteCommandCommand extends BotCommand {
   public constructor() {
@@ -20,28 +19,30 @@ export class DeleteCommandCommand extends BotCommand {
       return;
     }
 
-    try {
-      await prisma.customCommand.delete({
-        where: {
-          channelId_name: {
-            channelId: context.broadcasterId,
-            name: commandName,
-          },
-        },
-      });
+    if (!/^[a-zA-Z0-9_]+$/.test(commandName)) {
+      await context.bot.say(context.channel, 'The command name can only contain letters, numbers and underscores.');
+      return;
+    }
 
-      context.bot.removeCustomCommand(context.broadcasterId, commandName);
-      await context.bot.say(context.channel, `The command ${commandName} was deleted.`);
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2025') {
-          await context.bot.say(context.channel, `The command ${commandName} you are trying to delete does not exist.`);
-          return;
-        }
+    const result = await context.bot.callApi<CustomCommand>(
+      `commands/${context.broadcasterId}/${commandName}`,
+      'DELETE',
+      null,
+    );
+    if ('statusCode' in result) {
+      if (result.code === 'P2025') {
+        await context.bot.say(
+          context.channel,
+          `The command ${commandName} that you are trying to delete does not exist.`,
+        );
+        return;
       }
 
-      logger.handleError(e);
       await context.bot.say(context.channel, `An error occurred while deleting the command ${commandName}.`);
+      return;
     }
+
+    context.bot.removeCustomCommand(context.broadcasterId, commandName);
+    await context.bot.say(context.channel, `The command ${commandName} was deleted.`);
   }
 }

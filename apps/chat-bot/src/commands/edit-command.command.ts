@@ -1,7 +1,6 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { prisma } from 'database';
-import logger from '../utils/logger';
+import { CustomCommand } from 'common';
 
 export class EditCommandCommand extends BotCommand {
   public constructor() {
@@ -20,23 +19,31 @@ export class EditCommandCommand extends BotCommand {
       return;
     }
 
-    try {
-      await prisma.customCommand.update({
-        where: {
-          channelId_name: {
-            channelId: context.broadcasterId,
-            name: commandName,
-          },
-        },
-        data: {
-          content: response,
-        },
-      });
-
-      await context.bot.say(context.channel, `The command ${commandName} was edited.`);
-    } catch (e) {
-      logger.handleError(e);
-      await context.bot.say(context.channel, `An error occurred while editing the command ${commandName}.`);
+    if (!/^[a-zA-Z0-9_]+$/.test(commandName)) {
+      await context.bot.say(context.channel, 'The command name can only contain letters, numbers and underscores.');
+      return;
     }
+
+    const result = await context.bot.callApi<CustomCommand>(
+      `commands/${context.broadcasterId}/${commandName}`,
+      'PATCH',
+      {
+        content: response,
+      },
+    );
+    if ('statusCode' in result) {
+      if (result.code === 'P2025') {
+        await context.bot.say(
+          context.channel,
+          `The command ${commandName} that you are trying to edit does not exist.`,
+        );
+        return;
+      }
+
+      await context.bot.say(context.channel, `An error occurred while editing the command ${commandName}.`);
+      return;
+    }
+
+    await context.bot.say(context.channel, `The command ${commandName} was edited.`);
   }
 }

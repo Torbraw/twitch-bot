@@ -1,8 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { Prisma, prisma } from 'database';
-import { createBotCommandFromCustomCommand } from '../utils/utils';
-import logger from '../utils/logger';
+import { CustomCommand } from 'common';
+import { createBotCommandFromCustomCommand } from '../lib/utils';
 
 export class AddCommandCommand extends BotCommand {
   public constructor() {
@@ -21,30 +20,30 @@ export class AddCommandCommand extends BotCommand {
       return;
     }
 
-    try {
-      const newCommand = await prisma.customCommand.create({
-        data: {
-          channelId: context.broadcasterId,
-          name: commandName,
-          content: args.join(' '),
-        },
-      });
+    if (!/^[a-zA-Z0-9_]+$/.test(commandName)) {
+      await context.bot.say(context.channel, 'The command name can only contain letters, numbers and underscores.');
+      return;
+    }
 
-      context.bot.addCustomCommand(context.broadcasterId, createBotCommandFromCustomCommand(newCommand));
-      await context.bot.say(context.channel, `The command ${commandName} was added.`);
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          await context.bot.say(
-            context.channel,
-            `The command ${commandName} already exists, use !edit-command to edit it.`,
-          );
-          return;
-        }
+    const newCommand = await context.bot.callApi<CustomCommand>('commands', 'POST', {
+      channelId: context.broadcasterId,
+      name: commandName,
+      content: args.join(' '),
+    });
+    if ('statusCode' in newCommand) {
+      if (newCommand.code === 'P2002') {
+        await context.bot.say(
+          context.channel,
+          `The command ${commandName} already exists, use !edit-command to edit it.`,
+        );
+        return;
       }
 
-      logger.handleError(e);
       await context.bot.say(context.channel, `An error occurred while adding the command ${commandName}.`);
+      return;
     }
+
+    context.bot.addCustomCommand(context.broadcasterId, createBotCommandFromCustomCommand(newCommand));
+    await context.bot.say(context.channel, `The command ${commandName} was added.`);
   }
 }

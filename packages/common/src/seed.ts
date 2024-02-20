@@ -1,4 +1,6 @@
-import { Prisma, prisma } from '.';
+import { Prisma, PrismaClient } from '.';
+
+const prisma = new PrismaClient();
 
 const accessTokenScopes: Prisma.AccessTokenScopeCreateManyInput[] = [
   {

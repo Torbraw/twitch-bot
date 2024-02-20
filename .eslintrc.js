@@ -34,6 +34,14 @@ module.exports = {
         '@typescript-eslint/dot-notation': ['error'],
         '@typescript-eslint/explicit-member-accessibility': ['error'],
         '@typescript-eslint/no-misused-promises': ['error'],
+        '@typescript-eslint/no-unused-vars': [
+          'warn',
+          {
+            argsIgnorePattern: '^_',
+            varsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_',
+          },
+        ],
       },
     },
   ],

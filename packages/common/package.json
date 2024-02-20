@@ -1,5 +1,5 @@
 {
-  "name": "database",
+  "name": "common",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -8,10 +8,12 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "build-package": "tsup"
   },
   "dependencies": {
-    "@prisma/client": "^4.16.2"
+    "@prisma/client": "^4.16.2",
+    "valibot": "^0.25.0"
   },
   "devDependencies": {
     "@types/node": "^20.4.1",

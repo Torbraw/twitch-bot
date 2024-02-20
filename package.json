@@ -1,11 +1,12 @@
 {
   "license": "GPL-3.0",
   "prisma": {
-    "schema": "packages/database/prisma/schema.prisma",
-    "seed": "tsx packages/database/src/seed.ts"
+    "schema": "packages/common/prisma/schema.prisma",
+    "seed": "tsx packages/common/src/seed.ts"
   },
   "scripts": {
     "build": "dotenv -- turbo run build",
+    "build-package": "dotenv -- turbo run build-package",
     "dev": "dotenv -- turbo run dev"
   },
   "devDependencies": {
