@@ -25,19 +25,15 @@ const defaultPositiveNumber = (v = 2147483647) =>
     maxValue(v, 'Exceeds max value of 2147483647'),
   ]);
 
-const accessTokenBaseSchema = {
+export const CreateAccessTokenSchema = object({
   accessToken: defaultString,
   expiresIn: union([defaultPositiveNumber(), null_()]),
   obtainmentTimestamp: defaultPositiveNumber(9007199254740991),
   refreshToken: union([defaultString, null_()]),
-};
-export const CreateAccessTokenSchema = object({
-  ...accessTokenBaseSchema,
   scopes: object({
     connect: array(object({ name: defaultString })),
   }),
 });
-export const UpdateAccessTokenSchema = object(accessTokenBaseSchema);
 
 export const UpdateCustomCommandSchema = object({
   content: defaultString,

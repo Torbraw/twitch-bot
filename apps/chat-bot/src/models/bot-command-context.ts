@@ -8,6 +8,7 @@ export class BotCommandContext {
   private readonly _msg: PrivateMessage;
   private readonly _channel: string;
   private readonly _user: string;
+  private readonly _userId: string;
   private readonly _args: string[];
 
   public get bot(): Bot {
@@ -30,11 +31,16 @@ export class BotCommandContext {
     return this._args;
   }
 
+  public get userId(): string {
+    return this._userId;
+  }
+
   public constructor(options: BotCommandContextOptions) {
     this._bot = options.bot;
     this._args = options.args;
     this._channel = options.channel;
     this._user = options.user;
+    this._userId = options.userId;
     this._msg = options.msg;
   }
   //#endregion

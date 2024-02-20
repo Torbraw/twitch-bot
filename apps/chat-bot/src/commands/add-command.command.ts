@@ -1,7 +1,7 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { CustomCommand } from 'common';
-import { callApi, createBotCommandFromCustomCommand } from '../utils/utils';
+import { createBotCommandFromCustomCommand } from '../lib/utils';
 
 export class AddCommandCommand extends BotCommand {
   public constructor() {
@@ -25,7 +25,7 @@ export class AddCommandCommand extends BotCommand {
       return;
     }
 
-    const newCommand = await callApi<CustomCommand>('commands', 'POST', {
+    const newCommand = await context.bot.callApi<CustomCommand>('commands', 'POST', {
       channelId: context.broadcasterId,
       name: commandName,
       content: args.join(' '),

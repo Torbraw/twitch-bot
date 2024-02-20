@@ -1,7 +1,6 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
 import { CustomCommand } from 'common';
-import { callApi } from '../utils/utils';
 
 export class DeleteCommandCommand extends BotCommand {
   public constructor() {
@@ -25,7 +24,11 @@ export class DeleteCommandCommand extends BotCommand {
       return;
     }
 
-    const result = await callApi<CustomCommand>(`commands/${context.broadcasterId}/${commandName}`, 'DELETE', null);
+    const result = await context.bot.callApi<CustomCommand>(
+      `commands/${context.broadcasterId}/${commandName}`,
+      'DELETE',
+      null,
+    );
     if ('statusCode' in result) {
       if (result.code === 'P2025') {
         await context.bot.say(

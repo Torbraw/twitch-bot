@@ -1,6 +1,5 @@
 import { BotCommandContext } from '../models/bot-command-context';
 import { BotCommand } from '../models/bot-command';
-import { callApi } from '../utils/utils';
 import { CustomCommand } from 'common';
 
 export class EditCommandCommand extends BotCommand {
@@ -25,9 +24,13 @@ export class EditCommandCommand extends BotCommand {
       return;
     }
 
-    const result = await callApi<CustomCommand>(`commands/${context.broadcasterId}/${commandName}`, 'PATCH', {
-      content: response,
-    });
+    const result = await context.bot.callApi<CustomCommand>(
+      `commands/${context.broadcasterId}/${commandName}`,
+      'PATCH',
+      {
+        content: response,
+      },
+    );
     if ('statusCode' in result) {
       if (result.code === 'P2025') {
         await context.bot.say(

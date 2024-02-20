@@ -6,10 +6,6 @@ import { CustomCommand, Prisma, UpdateCustomCommand } from 'common';
 export class CommandsService {
   public constructor(private prisma: PrismaService) {}
 
-  public async getCommands(): Promise<CustomCommand[]> {
-    return await this.prisma.customCommand.findMany({});
-  }
-
   public async createCommand(data: Prisma.CustomCommandCreateInput): Promise<CustomCommand> {
     data.name = data.name.toLowerCase();
 

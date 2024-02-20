@@ -1,28 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AccessTokenWithScopes, CreateAccessToken, UpdateAccessToken } from 'common';
+import { CreateAccessToken } from 'common';
 
 @Injectable()
 export class AccessTokensService {
   public constructor(private prisma: PrismaService) {}
 
-  public async getAccessToken(userId: string): Promise<AccessTokenWithScopes> {
-    const accessToken = await this.prisma.accessToken.findUnique({
+  public async isAccessTokenValid(token: string): Promise<boolean> {
+    const accessToken = await this.prisma.accessToken.findFirst({
       where: {
-        userId: userId,
-      },
-      include: {
-        scopes: true,
+        accessToken: token,
       },
     });
+
     if (!accessToken) {
-      throw new NotFoundException('Access token not found');
+      return false;
     }
 
-    return {
-      ...accessToken,
-      obtainmentTimestamp: Number(accessToken.obtainmentTimestamp),
-    };
+    // No need to checks expiration, since the bot does it
+    return true;
   }
 
   public async createAccessToken(userId: string, data: CreateAccessToken): Promise<void> {
@@ -31,13 +27,6 @@ export class AccessTokensService {
         userId,
         ...data,
       },
-    });
-  }
-
-  public async updateAccessToken(userId: string, data: UpdateAccessToken): Promise<void> {
-    await this.prisma.accessToken.update({
-      where: { userId },
-      data,
     });
   }
 }

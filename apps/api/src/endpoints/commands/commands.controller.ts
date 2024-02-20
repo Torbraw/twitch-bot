@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   CustomCommand,
   UpdateCustomCommand,
@@ -8,17 +8,14 @@ import {
 } from 'common';
 import { CommandsService } from './commands.service';
 import { ValibotValidationPipe } from 'src/lib/valibot-validation.pipe';
+import { TwitchBotGuard } from 'src/lib/twich-bot.guard';
 
 @Controller('commands')
 export class CommandsController {
   public constructor(private commandsService: CommandsService) {}
 
-  @Get()
-  public async getCommands(): Promise<CustomCommand[]> {
-    return await this.commandsService.getCommands();
-  }
-
   @Post()
+  @UseGuards(TwitchBotGuard)
   public async createCommand(
     @Body(new ValibotValidationPipe(CreateCustomCommandSchema)) data: CreateCustomCommand,
   ): Promise<CustomCommand> {
@@ -26,6 +23,7 @@ export class CommandsController {
   }
 
   @Patch(':channelId/:name')
+  @UseGuards(TwitchBotGuard)
   public async updateCommand(
     @Param('channelId') channelId: string,
     @Param('name') name: string,
@@ -35,6 +33,7 @@ export class CommandsController {
   }
 
   @Delete(':channelId/:name')
+  @UseGuards(TwitchBotGuard)
   public async deleteCommand(
     @Param('channelId') channelId: string,
     @Param('name') name: string,

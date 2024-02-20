@@ -1,5 +1,5 @@
 import { Bot } from './src/models/bot';
-import logger from './src/utils/logger';
+import logger from './src/lib/logger';
 
 void (async () => {
   logger.logInfo('Starting bot');
@@ -7,5 +7,7 @@ void (async () => {
   const isStarted = await bot.init();
   if (isStarted) {
     logger.logInfo('Bot is running');
+  } else {
+    logger.logError('Bot failed to start');
   }
 })();

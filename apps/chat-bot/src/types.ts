@@ -17,6 +17,8 @@ export type BotCommandContextOptions = {
   bot: Bot;
   channel: string;
   user: string;
+  userId: string;
   args: string[];
   msg: PrivateMessage;
+  accessToken?: string;
 };
